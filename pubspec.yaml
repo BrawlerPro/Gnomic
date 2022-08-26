@@ -37,6 +37,8 @@ dependencies:
   flutter_svg:
   curved_navigation_bar:
   flutter_zoom_drawer:
+  ext_storage:
+  csv:
   gsheets:
   syncfusion_flutter_calendar:
   charts_flutter:
