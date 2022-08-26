@@ -86,8 +86,8 @@ class _BarPageState extends State<BarPage> {
           title: const Text(
               "Bar Chart Most Famous",
             style: TextStyle(
-              fontSize: 22,
-              fontFamily: 'Schyler'
+              fontSize: 25,
+              fontFamily: 'Schyler',
             ),
           ),
           centerTitle: true,

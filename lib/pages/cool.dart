@@ -1,9 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
-import 'package:zaeb/pages/cool.dart';
 import 'dart:convert' as convert;
 import 'Home.dart';
 import 'dart:math' as math;
@@ -16,14 +14,14 @@ List imglore = [
   'assets/wasbii.jpg',
 ];
 
-class MM extends StatefulWidget {
-  const MM({Key? key}) : super(key: key);
+class cool extends StatefulWidget {
+  const cool({Key? key}) : super(key: key);
 
   @override
-  _MMState createState() => _MMState();
+  _coolState createState() => _coolState();
 }
 
-class _MMState extends State<MM> {
+class _coolState extends State<cool> {
   List startapp = [];
   _getCsv() async {
     var url =
@@ -75,33 +73,19 @@ class _MMState extends State<MM> {
             ),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(onPressed: (){
-                  _getCsv();
-                }, icon: const Icon(Icons.file_download)),
-                SizedBox(
-                  width: (HOs == false ? 45 : 60),
-                ),
-                const Center(
+              children: const [
+                Center(
                   child: Text(
-                      'Startups',
+                    'Startups',
                     style: TextStyle(
-                      fontSize: 25,
-                      fontFamily: 'Schyler',
+                        fontSize: 25,
+                        fontFamily: 'Schyler'
                     ),
                   ),
                 ),
                 SizedBox(
-                  width: (HOs == false ? 65 : 75),
-                ),
-                IconButton(
-                    onPressed: () {
-                      HOs = true;
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (context) => const cool()))
-                          .whenComplete(() => (HOs = false));
-                    },
-                    icon: const Icon(Icons.sort))
+                  width: 65,
+                )
               ],
             ),
           ),
@@ -131,8 +115,8 @@ class _MMState extends State<MM> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(startapp[index]['startup'].toString(), style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17
                     ),),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -146,7 +130,7 @@ class _MMState extends State<MM> {
                     ),
                     Text(DateFormat('yyyy-MM-dd')
                         .format(DateTime.fromMillisecondsSinceEpoch(
-                            (startapp[index]['date']).toInt()))
+                        (startapp[index]['date']).toInt()))
                         .toString())
                   ],
                 ),
