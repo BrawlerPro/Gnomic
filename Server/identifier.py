@@ -106,112 +106,111 @@ def ProperNounExtractor(text):
 		
 	return result
 	
-def identify():
-	with open("parsedData.json") as file:
-		data = json.load(file)
-		startups = []
-		for website in data:
-			count = 0
-			for page in website:
-				try:
-					count+=1
-					if count>30: break
-					words = [word.upper() for word in page["text"].split()]
-					nouns = ProperNounExtractor(page["text"])
-					nouns = [word.upper() for word in nouns if len(word) >= 3]
-					unique = list(set(nouns))
-					unique.sort(key=lambda word: -words.count(word))
-					possible_names = unique
+with open("parsedData.json") as file:
+    data = json.load(file)
+    startups = []
+    for website in data:
+        count = 0
+        for page in website:
+            try:
+                count+=1
+                if count>30: break
+                words = [word.upper() for word in page["text"].split()]
+                nouns = ProperNounExtractor(page["text"])
+                nouns = [word.upper() for word in nouns if len(word) >= 3]
+                unique = list(set(nouns))
+                unique.sort(key=lambda word: -words.count(word))
+                possible_names = unique
 
-					if not len(possible_names): continue
+                if not len(possible_names): continue
 
-					# Highlights
-					highlights = []
-					links = []
-					for hl in page["highlighted"]:
-						link = urlparse(hl["link"].strip()).netloc
-						if link in banned_links: continue
-						highlights.append({"text": hl["text"], "link": link})
-						links.append(link)
-					
-					possible_links = [dict(s) for s in set(frozenset(d.items()) for d in highlights)]
-					possible_links.sort(key=lambda item: -links.count(item["link"]))
+                # Highlights
+                highlights = []
+                links = []
+                for hl in page["highlighted"]:
+                    link = urlparse(hl["link"].strip()).netloc
+                    if link in banned_links: continue
+                    highlights.append({"text": hl["text"], "link": link})
+                    links.append(link)
+                
+                possible_links = [dict(s) for s in set(frozenset(d.items()) for d in highlights)]
+                possible_links.sort(key=lambda item: -links.count(item["link"]))
 
-					link_names = []
-					for item in possible_links:
-						link_names.append(item["text"])
+                link_names = []
+                for item in possible_links:
+                    link_names.append(item["text"])
 
-					# Tags
-					tags_str = ' '.join(page["tags"]).upper()
-					title = page["title"].upper()
+                # Tags
+                tags_str = ' '.join(page["tags"]).upper()
+                title = page["title"].upper()
 
-					probabilities = {}
-					for name in possible_names:
-						prob = 0
-						if name == "EV":
-							print(title.find(name), tags_str.find(name), words.count(name))
-							pass
-						if title.find(name) != -1: prob+=STARTUP_TITLE
-						if tags_str.find(name) != -1: prob+=STARTUP_TAG
-						prob+=words.count(name)
-						for link in link_names:
-							if link.upper().find(name) != -1: prob+=STARTUP_LINK
-						for link in possible_links:
-							if link["link"].upper().find(name) != -1: prob+=STARTUP_LINK
+                probabilities = {}
+                for name in possible_names:
+                    prob = 0
+                    if name == "EV":
+                        print(title.find(name), tags_str.find(name), words.count(name))
+                        pass
+                    if title.find(name) != -1: prob+=STARTUP_TITLE
+                    if tags_str.find(name) != -1: prob+=STARTUP_TAG
+                    prob+=words.count(name)
+                    for link in link_names:
+                        if link.upper().find(name) != -1: prob+=STARTUP_LINK
+                    for link in possible_links:
+                        if link["link"].upper().find(name) != -1: prob+=STARTUP_LINK
 
-						
-						probabilities[name] = prob
-					
+                    
+                    probabilities[name] = prob
+                
 
-					# CEOs
-					last = [re.compile(r'CEO .*? of \w+')]
+                # CEOs
+                last = [re.compile(r'CEO .*? of \w+')]
 
-					for reg in last:
-						for match in re.findall(reg, page["text"]):
-							print(match)
-							print("!!!!!!!!!!!")
-							pass
-					
-					sorted_probabilities = {k: v for k, v in sorted(probabilities.items(), key=lambda item: -item[1])}
+                for reg in last:
+                    for match in re.findall(reg, page["text"]):
+                        print(match)
+                        print("!!!!!!!!!!!")
+                        pass
+                
+                sorted_probabilities = {k: v for k, v in sorted(probabilities.items(), key=lambda item: -item[1])}
 
-					print(title)
-					print(page["url"])
-					#print(sorted_probabilities)
-					possible_startups = list(sorted_probabilities)
-					startup = possible_startups[0]
-					index = words.index(startup)
+                print(title)
+                print(page["url"])
+                #print(sorted_probabilities)
+                possible_startups = list(sorted_probabilities)
+                startup = possible_startups[0]
+                index = words.index(startup)
 
-					# Double word name
-					if index != len(words) and words[index+1] in possible_startups[:5]:
-						startup = startup + " " + words[index+1]
-					elif index != 0 and words[index-1] in possible_startups[:5]:
-						startup = words[index-1] + " " + startup
+                # Double word name
+                if index != len(words) and words[index+1] in possible_startups[:5]:
+                    startup = startup + " " + words[index+1]
+                elif index != 0 and words[index-1] in possible_startups[:5]:
+                    startup = words[index-1] + " " + startup
 
-					probability = 0
-					for word in words:
-						if word.lower() in keywords:
-							probability+=PROBABILITY_TEXT
-					for word in title.split():
-						if word.lower() in keywords:
-							probability+=PROBABILITY_TITLE
-					for word in tags_str.split():
-						if word.lower() in keywords:
-							probability+=PROBABILITY_TAGS
+                probability = 0
+                for word in words:
+                    if word.lower() in keywords:
+                        probability+=PROBABILITY_TEXT
+                for word in title.split():
+                    if word.lower() in keywords:
+                        probability+=PROBABILITY_TITLE
+                for word in tags_str.split():
+                    if word.lower() in keywords:
+                        probability+=PROBABILITY_TAGS
 
-					# Bans
-					if startup.lower() in banned_startups: continue
-					print(startup)
+                # Bans
+                if startup.lower() in banned_startups: continue
+                print(startup)
 
-					startups.append({
-						"startup": startup,
-						"url": page["url"],
-						"isTransport": probability,
-						"date": page["date"]
-					})
-				except Exception as e:
-					print("Whoops...")
-					print(e)
-		
-		print(startups)
-		with open("startups.json", "w") as out:
-			out.write(json.dumps(startups))
+                startups.append({
+                    "startup": startup,
+                    "url": page["url"],
+                    "isTransport": probability,
+                    "date": page["date"]
+                })
+            except Exception as e:
+                print("Whoops...")
+                print(e)
+    
+    print(startups)
+    with open("startups.json", "w") as out:
+        out.write(json.dumps(startups))

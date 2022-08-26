@@ -256,4 +256,6 @@ def parse():
 	browser.quit()
 	exit()
 
+parse()
+
 #print(parse1_page("https://www.techstars.com/newsroom/techstars-and-j-p-morgan-launch-third-founder-catalyst-program-in-miami"))
